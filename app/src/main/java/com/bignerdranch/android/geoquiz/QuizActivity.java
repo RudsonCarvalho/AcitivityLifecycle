@@ -1,5 +1,6 @@
 package com.bignerdranch.android.geoquiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,10 +17,6 @@ public class QuizActivity extends AppCompatActivity {
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
 
-    private Button mTrueButton;
-    private Button mFalseButton;
-    private ImageButton mNextButton;
-    private ImageButton mPrevButton;
     private TextView mQuestionTextView;
 
     private Question[] mQuestionBank = new Question[] {
@@ -40,7 +37,7 @@ public class QuizActivity extends AppCompatActivity {
     private void checkAnswer(boolean userPressedTrue) {
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
 
-        int messageResId = 0;
+        int messageResId;
 
         if (userPressedTrue == answerIsTrue) {
             messageResId = R.string.correct_toast;
@@ -60,24 +57,24 @@ public class QuizActivity extends AppCompatActivity {
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
 
-        mTrueButton = (Button) findViewById(R.id.true_button);
-        mTrueButton.setOnClickListener(new View.OnClickListener() {
+        Button trueButton = (Button) findViewById(R.id.true_button);
+        trueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkAnswer(true);
             }
         });
 
-        mFalseButton = (Button) findViewById(R.id.false_button);
-        mFalseButton.setOnClickListener(new View.OnClickListener() {
+        Button falseButton = (Button) findViewById(R.id.false_button);
+        falseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkAnswer(false);
             }
         });
 
-        mNextButton = (ImageButton) findViewById(R.id.next_button);
-        mNextButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton nextButton = (ImageButton) findViewById(R.id.next_button);
+        nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
@@ -90,14 +87,28 @@ public class QuizActivity extends AppCompatActivity {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
         }
 
-        mPrevButton = (ImageButton) findViewById(R.id.prev_button);
-        mPrevButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton prevButton = (ImageButton) findViewById(R.id.prev_button);
+        prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mCurrentIndex > 0) {
                     mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
                     updateQuestion();
                 }
+            }
+        });
+
+        Button mCheatButton = (Button) findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //Intent i = new Intent(QuizActivity.this, CheatActivity.class);
+                boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+                Intent i = CheatActivity.newIntent(QuizActivity.this, answerIsTrue);
+
+                startActivity(i);
+
             }
         });
 
@@ -153,9 +164,6 @@ public class QuizActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 }
